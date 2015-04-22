@@ -1,16 +1,11 @@
-#!/bin/bash
+#!/bin/bash -e
 
 
 androidSRC="/home/usr/android" # android源码的根目录
 packageSRC="packages/apps/Launcher2" # 要编译项目的源码目录
 outSRC="out/target/product/rk30sdk/system/app/Launcher2.apk" # 编译产物的保存路径
 
-isLastCommandSuccess() {
-    test $? != 0 && exit 1
-}
-
 cd $androidSRC
-isLastCommandSuccess
 
 # 准备好编译命令，如mmm
 which mmm
@@ -18,14 +13,13 @@ if [ $? != 0 ];
 then
 echo "prepare the compiling evironment..."
 source build/envsetup.sh > /dev/null
-isLastCommandSuccess
 else
 :
 fi
 
 echo "begin to compile..."
 mmm $packageSRC
-isLastCommandSuccess
+
 
 # 检查adb是否是以root运行，如果不是，以root权限重新启动adb
 ps -u 0 | grep " adb"
@@ -33,9 +27,7 @@ if [ $? != 0 ];
 then
 echo "restarting adb on root privilege"
 adb kill-server
-isLastCommandSuccess
 sudo adb start-server
-isLastCommandSuccess
 echo "adb restarted"
 else
 :
@@ -50,7 +42,6 @@ adb push $outSRC /system/app
 else
 :
 fi
-isLastCommandSuccess
 echo "finish pushing."
 
 echo "done"
